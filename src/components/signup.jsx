@@ -23,7 +23,6 @@ const Signup = () => {
         e.preventDefault();
         setError('');
 
-        // Basic validation
         if (!username || !password || !email) {
             setError("All fields are required.");
             return;
@@ -36,13 +35,11 @@ const Signup = () => {
         const server_address = import.meta.env.VITE_SERVER_HOST;
 
         try {
-            console.log("Sending request to " + server_address);
             const response = await axios.post(`${server_address}/account/signup`, {
                 username,
                 password,
                 email
             });
-            console.log(response);
 
             if (response.status === 200) {
                 alert("Signup successful! Please login.");

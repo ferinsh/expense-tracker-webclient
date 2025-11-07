@@ -1,42 +1,74 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route   } from 'react-router'
+import { createBrowserRouter, redirect, RouterProvider   } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import axios from 'axios'
+
 import './index.css'
+
 import AuthProvider from './provider/AuthProvider.jsx'
-import App from './App.jsx'
-import { Account } from './components/account.jsx'
+
 import Login from './components/login.jsx'
-import ProtectedRoute from './ProtectedRoute.jsx'
 import Signup from './components/signup.jsx'
+import App from './App.jsx'
+import Account from './components/account.jsx'
+import Expense from './components/expense.jsx'
+import ProtectedRoute from './ProtectedRoute.jsx'
 
-const root = document.getElementById('root');
+const queryClient = new QueryClient(); 
 
-ReactDOM.createRoot(root).render(
+const expenseLoader = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) return redirect('/login');
+  return null;
+  // try {
+  //   const res = await axios.get(`${import.meta.env.VITE_SERVER_HOST}/expense/viewExpenses`, {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   });
+  //   console.log('a: ', res);
+  //   return res.data;
+  // } catch (err) {
+  //   console.error("Error loading expenses: ", err);
+  //   return {totalAmount: 0, expenses: []};
+  // }
+
+}
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    children: [
+      {
+        path: 'expense',
+        loader: expenseLoader,
+        element: (
+        <ProtectedRoute>
+          <Expense />
+        </ProtectedRoute>
+        )
+      },
+      {
+        path: 'account',
+        element: (
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        )
+      }
+    ]
+  },
+  { path: '/login', element: <Login /> },
+  { path: '/signup', element: <Signup /> },
+]);
+
+ReactDOM.createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element = {<App />} >
-            {/* <Route index element={<Dashboard />} /> */}
-            <Route path="account"
-            element={
-              <ProtectedRoute>
-                <Account/>
-              </ProtectedRoute>
-            } 
-            />
-          </Route>
-          <Route path='/login' element = {<Login />} />
-          <Route path='/signup' element = {<Signup />} />
-        </Routes>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </AuthProvider>
   </StrictMode>
-)
+);
 
-// createRoot(document.getElementById('root')).render(
-//   <StrictMode>
-//     <App />
-//   </StrictMode>,
-// )

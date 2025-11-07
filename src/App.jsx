@@ -3,13 +3,16 @@ import stockuserphoto from './assets/user.png'
 import './App.css'
 import { useAuth } from './provider/AuthProvider'
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 function App() {
   const { token, setToken, user } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
+    queryClient.removeQueries();
     navigate('/');
     setTimeout(() => {
       setToken(null);

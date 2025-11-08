@@ -90,11 +90,38 @@
 .add-expense-controls {
     display: flex;
     justify-content: space-between;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    padding-top: 0;
 
+}
+.add-expense-controls > h2 {
+    margin: 0;
+    text-align: center;
+    display: flex;
+    align-items: center;
 }
 .add-expense-controls > button {
     height: 50px;
     width: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background-color: wheat;
+        color: white;
+    }
+}
+.submit-loader {
+    height: 50px;
+    width: 50px;
+    border: 4px solid #f3f3f3; /* Light gray */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+
 }
 
 .add-expense-form {
@@ -118,3 +145,65 @@
     width: 50%;
     text-align: right;
 }
+
+.expense-loader-view {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.expense-loader {
+    border: 4px solid #f3f3f3; /* Light gray */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    width: 40px;
+    height: 40px;
+}
+
+.expense-error-viewer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #555;
+    box-sizing: border-box;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.expense-error {
+
+}
+.expense-error > p {
+    color: red;
+    width: 100%;
+}
+.expense-error > p > span {
+    color: green;
+    width: 100%;
+    cursor: pointer;
+    &:hover {
+        color: blueviolet;
+    }
+}
+
+.expense-error > section {
+    width: 100%;
+    border-top: 1px solid wheat;
+}
+

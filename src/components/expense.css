@@ -24,7 +24,8 @@
     font-family: sans-serif;
     /* min-width: 400px; */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    table-layout: auto;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 .expense-viewer table > thead tr {
     /* border: 2px solid darkblue; */
@@ -42,6 +43,7 @@
     overflow: hidden;
     text-align: center;
     width: auto;
+    word-break: break-word;
 
 }
 .expense-viewer > table tbody tr {

@@ -6,7 +6,8 @@
     flex-direction: column;
     box-sizing: border-box;
     padding: 16px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 }
 .expense-viewer > h3 {
     margin: 0;

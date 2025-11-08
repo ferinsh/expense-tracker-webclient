@@ -1,12 +1,14 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
+import { Navigate, useNavigate } from "react-router"
+import { motion, AnimatePresence} from "framer-motion";
 
 export const AddExpenseBtn = ({onAddClick}) => {
 
     return <button className="add-expense-btn" onClick={onAddClick}>Add Expense</button>
 }
 
-export const AddExpensePopup = ({ onClose, onSubmit }) => {
+export const AddExpensePopup = ({ onClose, onSubmit, show, submitting }) => {
     const [formData, setFormData] = useState({
         category_id: "",
         amount: "",
@@ -16,13 +18,15 @@ export const AddExpensePopup = ({ onClose, onSubmit }) => {
     const [categories, setCategories] = useState([]);
     console.log(categories);
 
+    useEffect(() => {
+        console.log("Form data updated:", formData);
+    }, [formData]);
     useEffect (() => {
         const fetchcategories = async () => {
             try {
             const rows = await axios.get(`${import.meta.env.VITE_SERVER_HOST}/categories/read-all`, {
                 headers: {Authorization: `Bearer ${localStorage.getItem('token')}`},
             })
-            // console.log(rows);
             setCategories(rows.data.categories);
             } catch (err) {
                 console.error("Error retrieving categories: ", err);
@@ -39,53 +43,82 @@ export const AddExpensePopup = ({ onClose, onSubmit }) => {
     }
 
     const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    onClose(); // close popup after submission
-  };
+        e.preventDefault();
+        onSubmit(formData);
+        setFormData({
+            category_id: "",
+            amount: "",
+            description: "",
+            date: "",
+        });
+        // onClose();
+    };
 
     return (
-        <>
-            <div className="add-expense-popup">
-                <div className="add-expense-controls">
-                    <h2>Add New Expense</h2>
-                    <button onClick={onClose}>x</button>
-                </div>
-                <form onSubmit={handleSubmit} className="add-expense-form">
-                    <div className="adde-form-categ-amt">
-                        <div>
-                            <label >Category</label>
-                            {/* <input type="number" name="category_id" value={formData.category_id} onChange={handleChange} required /> */}
-                            <select name="category_id" onChange={handleChange} value={formData.category_id} required>
-                                <option value={0}>none</option>
-                                {categories.map((category) => {
-                                    return <option value={category.id}>{category.name}</option>
-                                })}
-                            </select>
-                        </div>
-                        <div>
-                            <label >Amount</label>
-                            <input type="number" name="amount" value={formData.amount} onChange={handleChange} required />
-                        </div>
 
+        <AnimatePresence>
+            {show && (
+                <motion.div
+                key="popup"
+                initial={{ opacity: 0, scale: 1, y: -100 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -100 }}
+                transition={{ duration: 0.1, ease: "easeInOut" }}
+                className="popup-backdrop"
+                >
+                    <div className="add-expense-popup">
+                    {/* {(submitting && show) && <p>Submitting</p>} */}
+                        <div className="add-expense-controls">
+                            
+                            {!submitting ? 
+                                <h2>Add New Expense</h2> : 
+                                <h2>Adding...</h2>
+                            }
+                            {!submitting ? 
+                                <button onClick={onClose}>x</button> : 
+                                <div className="submit-loader"></div>
+                            }
+                            
+                        </div>
+                        <form onSubmit={handleSubmit} className="add-expense-form">
+                            <div className="adde-form-categ-amt">
+                                <div>
+                                    <label >Category</label>
+                                    {/* <input type="number" name="category_id" value={formData.category_id} onChange={handleChange} required /> */}
+                                    <select name="category_id" onChange={handleChange} value={formData.category_id} required>
+                                        <option value="">Select category</option>
+                                        {categories.map((category) => {
+                                            return <option key={category.id} value={category.id}>{category.name}</option>
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label >Amount</label>
+                                    <input type="number" name="amount" value={formData.amount} onChange={handleChange} required />
+                                </div>
+
+                            </div>
+                            <div className="adde-form-desc">
+                                <label >Description</label>
+                                <input type="text" name="description" value={formData.description} onChange={handleChange} required />
+                            </div>
+                            <div className="adde-form-date">
+                                <label >Date</label>
+                                <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+                            </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? "Submitting..." : "Add Expense"}
+                                </button>
+                        </form>
                     </div>
-                    <div className="adde-form-desc">
-                        <label >Description</label>
-                        <input type="text" name="description" value={formData.description} onChange={handleChange} required />
-                    </div>
-                    <div className="adde-form-date">
-                        <label >Date</label>
-                        <input type="date" name="date" value={formData.date} onChange={handleChange} required />
-                    </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
-                        >
-                            Add Expense
-                        </button>
-                </form>
-            </div>
-        </>
+                </motion.div>
+            )}
+        </AnimatePresence>
+
     )
 }
 
@@ -166,5 +199,26 @@ export const LastWeekExpenseTable = (props) => {
                 <p>Total Expense: {data.totalAmount} Rs</p>
             </table>
         </>
+    )
+}
+
+export const LoadingExpenseDiv = () => {
+
+    return (
+        <div className="expense-loader-view">
+            <div className="expense-loader"></div>
+        </div>
+    )
+}
+
+export const ExpenseErrorComponent = ({errorMessage}) => {
+    const navigate = useNavigate();
+    return (
+    <div className="expense-error-viewer">
+        <div className="expense-error">
+            <p><b>Error</b> fetching Expenses <span onClick={() => {navigate("/")}}>Go back?</span></p>
+            <section>{errorMessage}</section>
+        </div>
+    </div>
     )
 }

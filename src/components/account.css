@@ -4,4 +4,31 @@
     width: 100%;
     border-radius: 10px;
     background-color: white;
+    padding: 16px;
+    padding-top: 96px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    /* align-items: end; */
+}
+.account-edit {
+    align-self: end;
+    margin-top: 16px;
+}
+.account-field {
+    height: auto;
+    width: calc(auto - 16px);
+    display: flex;
+    /* flex: auto; */
+    margin-top: 16px;
+}
+.account-field > label {
+    /* text-align: end; */
+    padding-right: 16px;
+    width: 128px;
+    align-content: center;
+}
+.account-field > input {
+    height: 32px;
+    text-indent: 16px;
 }

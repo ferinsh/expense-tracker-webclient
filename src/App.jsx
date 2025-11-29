@@ -13,6 +13,8 @@ function App() {
 
   const handleLogout = () => {
     queryClient.removeQueries();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     navigate('/');
     setTimeout(() => {
       setToken(null);

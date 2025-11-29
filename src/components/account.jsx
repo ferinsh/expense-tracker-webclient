@@ -1,4 +1,5 @@
 import { useAuth } from '../provider/AuthProvider';
+import { AccountDetails } from './accountComponents';
 import "./account.css"
 
 const Account = () => {
@@ -7,7 +8,7 @@ const Account = () => {
     return (
         <>
             <div className='account-viewer'>
-
+                <AccountDetails user = {user}/>
             </div>
         </>
     )

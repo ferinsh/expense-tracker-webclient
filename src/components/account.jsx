@@ -8,7 +8,7 @@ const Account = () => {
     return (
         <>
             <div className='account-viewer'>
-                <AccountDetails user = {user}/>
+                <AccountDetails/>
             </div>
         </>
     )

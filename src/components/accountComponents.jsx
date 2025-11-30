@@ -1,19 +1,23 @@
 import { time } from "framer-motion";
 import { useInsertionEffect, useState } from "react"
-import { redirect } from "react-router";
+import { data, redirect } from "react-router";
 import { useAuth } from "../provider/AuthProvider";
+import { validateAccountEdit } from "../utils/validateAccountEdit";
 
 
-const AccountDetails = (props) => {
-    // const {user} = props
+const AccountDetails = () => {
+    const [edit, setEdit] = useState(false)
+    const [formErrors, setFormErrors] = useState({
+        username: [],
+        email: []
+    });
+    console.log("form errors: ", formErrors)
+
     const {user, setUser} = useAuth(); 
     const [editedUser, setEditedUser] = useState(user);
 
-    const [edit, setEdit] = useState(false)
 
     function handleChange (e) {
-        // console.log(e.target.name)
-        // console.log(e.target.value)
         setEditedUser({
             ...editedUser,
             [e.target.name]: e.target.value
@@ -21,7 +25,10 @@ const AccountDetails = (props) => {
     }
 
     async function handleAccept (e) {
-        // console.log("start")
+        const {errors: dataErrors} = validateAccountEdit(editedUser)
+        console.log("Errors: ", dataErrors)
+        setFormErrors(dataErrors)
+    
         e.target.disabled = true
 
         const controller = new AbortController();
@@ -30,13 +37,20 @@ const AccountDetails = (props) => {
             window.alert("Request Timed Out");
         }, 8000);
 
+        const hasErrors = Object.values(dataErrors).some(arr => arr.length > 0);
+        if(hasErrors) {
+            console.log("cancelling")
+            setEdit(false);
+            clearTimeout(timeout);
+            return false;
+        }
+
         try {
-            // console.log("Checking token");
             const token = localStorage.getItem("token");
             if(!token) {
                 Navigate("/login");
             }
-            // console.log("Sending request")
+            console.log("Sending request")
             const res = await fetch(`${import.meta.env.VITE_SERVER_HOST}/account/updateProfile`, {
                 method: "POST",
                 headers: {
@@ -45,17 +59,17 @@ const AccountDetails = (props) => {
                 },
                 body: JSON.stringify(editedUser)
             })
-            // console.log("Response: ", res);
+            console.log(res);
             const data = await res.json();
-            // console.log(data);
 
-            // console.log("done")
             if(res.ok) {
+                clearTimeout(timeout);
                 window.alert("Profile Updated");
                 setEdit(false);
                 setUser(data.user || editedUser);
 
             } else {
+                clearTimeout(timeout);
                 window.alert ("Error: " + data.message);
             }
             setEdit(!edit);
@@ -86,6 +100,9 @@ const AccountDetails = (props) => {
                     onChange={handleChange}
                 />
             </div>
+            {formErrors.username.map((errMsg, index) => {
+                return <p key={index} className="form-error-p">{errMsg}</p>
+            })}
             <div id="account-email" className="account-field">
                 <label htmlFor="email">Email</label>
                 <input
@@ -96,6 +113,9 @@ const AccountDetails = (props) => {
                     onChange={handleChange}
                 />
             </div>
+            {formErrors.email.map((errMsg, index) => {
+                return <p key={index} className="form-error-p">{errMsg}</p>
+            })}
             {edit && <button id="account-accept" className="account-edit" onClick={handleAccept}>Accept</button>}
         </>
     )

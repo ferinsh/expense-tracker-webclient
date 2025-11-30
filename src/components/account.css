@@ -32,3 +32,8 @@
     height: 32px;
     text-indent: 16px;
 }
+.form-error-p {
+    color: red;
+    margin: 0;
+    text-align: end;
+}
